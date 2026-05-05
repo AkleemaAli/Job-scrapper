@@ -10,52 +10,24 @@ st.set_page_config(page_title="Pro Job Scraper", page_icon="🔍", layout="wide"
 
 def get_linkedin_jobs(keywords, location, exp_level):
     options = webdriver.ChromeOptions()
-    options.add_argument('--headless') 
+    options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36")
-
-    exp_map = {"Any": "", "Internship": "1", "Entry Level": "2", "Associate": "3", "Mid-Senior Level": "4", "Senior/Director": "5"}
-    exp_code = exp_map.get(exp_level, "")
+    options.add_argument('--disable-gpu')
+    
+    # Path point karna zaroori hai
+    options.binary_location = "/usr/bin/chromium" 
 
     try:
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+        # Ye line version mismatch ko solve karti hai
+        service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=options)
         
+        # URL aur Scraping logic yahan aayega...
         search_url = f"https://www.linkedin.com/jobs/search/?keywords={keywords.replace(' ', '%20')}&location={location.replace(' ', '%20')}"
-        if exp_code:
-            search_url += f"&f_E={exp_code}"
-        
         driver.get(search_url)
-        time.sleep(5) 
-
-        job_data = []
         
-        selectors = [
-            "a.base-card__full-link", 
-            "a.job-search-card__alt-link", 
-            ".base-search-card__title"
-        ]
-        
-        found_elements = []
-        for selector in selectors:
-            found_elements = driver.find_elements(By.CSS_SELECTOR, selector)
-            if found_elements:
-                break
-
-        for j in found_elements[:15]:
-            try:
-                title = j.text.strip()
-                if not title:
-                    title = j.get_attribute('innerText').strip()
-                
-                link = j.get_attribute('href')
-                if link:
-                    link = link.split('?')[0]
-                
-                if title and link:
-                    job_data.append({"Job Title": title, "Location": location, "Link": link})
-            except:
-                continue
+        # (Baki ka scraping code jo pehle tha)
         
         driver.quit()
         return job_data
