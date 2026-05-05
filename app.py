@@ -10,16 +10,17 @@ st.set_page_config(page_title="Pro Job Scraper", page_icon="🔍", layout="wide"
 
 def get_linkedin_jobs(keywords, location, exp_level):
     options = webdriver.ChromeOptions()
-    options.add_argument('--headless') 
+    options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
-    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36")
+    options.add_argument('--disable-gpu')
 
-    exp_map = {"Any": "", "Internship": "1", "Entry Level": "2", "Associate": "3", "Mid-Senior Level": "4", "Senior/Director": "5"}
-    exp_code = exp_map.get(exp_level, "")
+    options.binary_location = "/usr/bin/chromium" 
 
     try:
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+        service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=options)
+        
         
         search_url = f"https://www.linkedin.com/jobs/search/?keywords={keywords.replace(' ', '%20')}&location={location.replace(' ', '%20')}"
         if exp_code:
